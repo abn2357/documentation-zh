@@ -31,11 +31,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://tronprotocol.github.io/documentation-zh/clients/tron-grid/</loc>
-         <lastmod>2025-02-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://tronprotocol.github.io/documentation-zh/clients/wallet-cli-command/</loc>
          <lastmod>2025-02-26</lastmod>
          <changefreq>daily</changefreq>
@@ -56,32 +51,12 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://tronprotocol.github.io/documentation-zh/contracts/trc20/</loc>
-         <lastmod>2025-02-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://tronprotocol.github.io/documentation-zh/contracts/tvm/</loc>
-         <lastmod>2025-02-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://tronprotocol.github.io/documentation-zh/developers/advanced-configuration/</loc>
          <lastmod>2025-02-26</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://tronprotocol.github.io/documentation-zh/developers/archive-manifest/</loc>
-         <lastmod>2025-02-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://tronprotocol.github.io/documentation-zh/developers/code-structure/</loc>
-         <lastmod>2025-02-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://tronprotocol.github.io/documentation-zh/developers/contribution/</loc>
          <lastmod>2025-02-26</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -101,16 +76,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://tronprotocol.github.io/documentation-zh/developers/gpg/</loc>
-         <lastmod>2025-02-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://tronprotocol.github.io/documentation-zh/developers/incentives/</loc>
-         <lastmod>2025-02-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://tronprotocol.github.io/documentation-zh/developers/issue-workflow/</loc>
          <lastmod>2025-02-26</lastmod>
          <changefreq>daily</changefreq>
@@ -126,11 +91,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://tronprotocol.github.io/documentation-zh/developers/resources/</loc>
-         <lastmod>2025-02-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://tronprotocol.github.io/documentation-zh/developers/run-in-idea/</loc>
          <lastmod>2025-02-26</lastmod>
          <changefreq>daily</changefreq>
@@ -141,27 +101,12 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://tronprotocol.github.io/documentation-zh/faq/</loc>
-         <lastmod>2025-02-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://tronprotocol.github.io/documentation-zh/getting_started/getting_started_with_javatron/</loc>
          <lastmod>2025-02-26</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://tronprotocol.github.io/documentation-zh/introduction/</loc>
-         <lastmod>2025-02-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://tronprotocol.github.io/documentation-zh/introduction/dpos/</loc>
-         <lastmod>2025-02-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://tronprotocol.github.io/documentation-zh/introduction/overview/</loc>
          <lastmod>2025-02-26</lastmod>
          <changefreq>daily</changefreq>
     </url>
@@ -186,11 +131,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://tronprotocol.github.io/documentation-zh/mechanism-algorithm/shielded-TRC20-contract/</loc>
-         <lastmod>2025-02-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://tronprotocol.github.io/documentation-zh/mechanism-algorithm/shielded-transaction/</loc>
          <lastmod>2025-02-26</lastmod>
          <changefreq>daily</changefreq>
@@ -202,11 +142,6 @@
     </url>
     <url>
          <loc>https://tronprotocol.github.io/documentation-zh/mechanism-algorithm/system-contracts/</loc>
-         <lastmod>2025-02-26</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
-         <loc>https://tronprotocol.github.io/documentation-zh/mechanism-algorithm/trc10/</loc>
          <lastmod>2025-02-26</lastmod>
          <changefreq>daily</changefreq>
     </url>
