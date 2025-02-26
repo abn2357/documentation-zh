@@ -48,7 +48,7 @@ nav:
 
 
 theme: 
-    name: readthedocs
+    name: material
     feature:
         - navigation.tracing
         - navigation.expand: false
