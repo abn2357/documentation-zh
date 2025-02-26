@@ -68,7 +68,8 @@ markdown_extensions:
     - pymdownx.superfences
 
 plugins:
-  - search
+  - search:
+     separator: '[\s\u200b\-]'  
   - exclude:
       glob:
         - clients/tron-grid.md
