@@ -47,12 +47,22 @@ nav:
     - 术语表: glossary.md
 
 
-theme: 
-    name: material
-    feature:
-        - navigation.tracing
-        - navigation.expand: false
-        - navigation.tabs
+theme:
+  name: material
+  palette:
+    primary: teal
+    accent: pink
+    scheme: preference
+  font:
+    text: Roboto
+    code: Fira Code
+  features:
+    - navigation.tabs
+    - navigation.indexes
+    - navigation.sections
+    - navigation.expand
+#    - navigation.top
+
 extra_javascript:
     - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'
 markdown_extensions:
