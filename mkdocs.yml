@@ -56,14 +56,18 @@ theme:
     - content.code.annotate  # 代码块注释
     - content.tooltips  # 内容中的工具提示
   palette:
-    primary: indigo  # 主色调
-    accent: blue  # 强调色
+    primary: custom  # 主色调
+    accent: custom  # 强调色
   font:
     text: Roboto  # 正文字体
     code: Roboto Mono  # 代码字体
 
 extra_javascript:
     - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'
+
+extra_css:
+    - stylesheets/color.css 
+
 markdown_extensions:
     - admonition
     - footnotes
