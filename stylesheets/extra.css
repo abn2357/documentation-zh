@@ -1,3 +1,8 @@
+:root {
+  --md-primary-fg-color: #ec0b2a;        /* 主色调 */
+  --md-accent-fg-color: #ec0b2a;         /* 强调色 */
+}
+
 /* 禁用一级目录的大写转换 */
 .wy-menu-vertical p.caption {
     text-transform: none;
@@ -14,7 +19,7 @@
 }
 
 .md-nav__item.has-children > .md-nav__link::after {
-  content: "⟩"; /* 使用大于号 */
+  content: "⟩"; /* 使用尖括号 */
   position: absolute;
   right: 0;
   top: 50%;
