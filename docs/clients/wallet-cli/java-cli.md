@@ -63,8 +63,7 @@ java -jar java/build/libs/wallet-cli.jar help --command send-coin
 
 ## 全局选项（标准 CLI）
 
-执行修饰类全局选项由 `GlobalOptions` 解析，可以写在命令名**之前或之后**。顶层模式选择器有更严格的
-位置规则，具体说明如下。
+以下选项用于配置标准 CLI 命令：
 
 | 选项 | 取值 | 说明 |
 |------|------|------|
@@ -81,24 +80,17 @@ java -jar java/build/libs/wallet-cli.jar help --command send-coin
 
 说明：
 
-- 执行修饰类选项 `--network`、`--grpc-endpoint`、`--output`、`--wallet`、`--quiet`、
-  `--verbose` 和 `--password-stdin` 可在命令名之前或之后识别。
-- 顶层模式选择器 `--version` 和 `--interactive` 必须写在命令名之前；出现在命令之后时，会被视为
-  命令自身的参数。
-- `--help` 和 `-h` 出现在命令之前时请求全局帮助，出现在命令之后时请求该命令的帮助。
-- 带取值的全局选项（`--output`、`--network`、`--wallet` 和 `--grpc-endpoint`）既可将取值作为
-  下一个 token 给出（`--network nile`），也可内联给出（`--network=nile`）。
-- 带取值的选项不可重复出现；未知的全局选项会被拒绝。
+- 网络、输出、钱包、日志和密码选项可以写在命令名之前或之后。
+- `--version` 和 `--interactive` 应写在命令名之前。
+- `--help` 写在命令之前时显示全局帮助，写在命令之后时显示该命令的帮助。
+- 带取值的选项同时接受 `--network nile` 和 `--network=nile` 两种形式。
 
 ## 鉴权（标准 CLI）
 
 标准 CLI 模式是非交互的，因此从不提示输入密码。构建并签名交易的命令（本文档中标注为**需要鉴权**）
-会自动完成鉴权：
-
-1. 钱包密码从环境变量 `MASTER_PASSWORD` 读取；当传入 `--password-stdin` 时则从 **stdin** 读取
-   （stdin 优先）。
-2. keystore 从 `Wallet/` 目录加载。可用 `--wallet <name|path>` 选择特定钱包，或用
-   `set-active-wallet` 设置一个**活动钱包**（见 [钱包管理](wallet-management.md)）。
+从 `MASTER_PASSWORD` 读取钱包密码；传入 `--password-stdin` 时则从 stdin 读取，且 stdin 优先。
+可用 `--wallet <name|path>` 选择钱包，或用 `set-active-wallet` 设置一个**活动钱包**
+（见[钱包管理](wallet-management.md)）。
 
 大多数只读查询命令不需要鉴权。例外是作用于当前钱包的查询：`get-address` 始终需要鉴权，
 `get-balance` / `get-usdt-balance` / `gas-free-info` 在省略 `--address` 时需要鉴权
@@ -135,12 +127,8 @@ REPL 的鉴权方式不同：通过 `Login` / `LoginAll` 交互式登录，会�
 }
 ```
 
-其他规则：
-
-- 广播交易的命令会在 `data` 中包含交易 ID `txid`（仅限单签广播）。
-- `deploy-contract` 会在 `data` 中包含部署得到的 `contract_address`。
-- 当某个选项的别名被解析时，信封会包含一个 `meta.resolved` 数组描述解析结果（见
-  [钱包管理](wallet-management.md) 中的别名系统）。
+交易命令可能在 `data` 中加入 `txid` 或 `contract_address` 等标识符。别名解析详情可能出现在
+`meta.resolved` 下（见[钱包管理](wallet-management.md)）。
 
 退出码：
 
@@ -150,13 +138,12 @@ REPL 的鉴权方式不同：通过 `Login` / `LoginAll` 交互式登录，会�
 | `1` | 执行错误（`"error": "execution_error"` 等）。 |
 | `2` | 用法错误（`"error": "usage_error"`——标志错误、缺少必填选项等）。 |
 
-这使得标准 CLI 可安全地用脚本驱动：检查退出码，并从 stdout 解析这唯一的 JSON 对象即可。
+脚本应检查退出码，并解析 stdout 中的 JSON 对象。
 
 ## 网络与配置
 
-各网络的默认节点端点以及其他默认值，位于 `java/src/main/resources/config.conf`（HOCON 格式）。
-`--network` 标志在 `main`、`nile`（测试网）、`shasta`（测试网）和 `custom` 之间选择。对于
-`custom`，用 `--grpc-endpoint host:port` 提供端点。
+`--network` 标志可选择 `main`、`nile`（测试网）、`shasta`（测试网）或 `custom`。使用自定义网络时，
+通过 `--grpc-endpoint host:port` 提供节点端点。
 
 在 REPL 中，用 `SwitchNetwork` 切换网络，用 `CurrentNetwork` 查看当前网络。
 

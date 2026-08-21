@@ -6,10 +6,11 @@
 
 仓库提供两种实现：
 
-- **[Java CLI](java-cli.md)** —— 原始的全功能实现。它既提供面向用户的交互式 REPL，也提供供脚本
-  调用 Java JAR 的非交互式标准 CLI。
+- **[Java CLI](java-cli.md)** —— 原始实现。它既提供面向用户的交互式 REPL，也提供供脚本通过
+  Java JAR 调用的非交互式标准 CLI；协议功能覆盖最广，包括 TRC-10 发行、链上 DEX 和治理提案。
 - **[TypeScript / npm CLI](typescript-cli.md)** —— 面向智能体优先设计的 Node.js 实现，以
-  `@tron-walletcli/wallet-cli` 发布，采用分组命令、确定的退出码和结构化 JSON 输出。
+  `@tron-walletcli/wallet-cli` 发布，采用分组命令、确定的退出码和结构化 JSON 输出，并原生支持
+  [多签](typescript-cli-multisig.md)与 [GasFree](typescript-cli-gasfree.md) 工作流。
 
 ## 入口对比
 
@@ -39,10 +40,12 @@
 
 ## 选择实现
 
-| 实现 | 命令风格 | 适用场景 |
-|------|----------|----------|
-| [Java CLI](java-cli.md) | `GetAccount` 等交互式命令，或 `get-account` 等标准 CLI 命令 | 完整的 TRON 钱包功能、手动操作以及 Java JAR 集成 |
-| [TypeScript / npm CLI](typescript-cli.md) | `account info`、`tx send` 等分组命令 | 自动化、CI/CD、结构化 JSON 集成以及 AI 智能体 |
+| 实现 | 命令风格 | 功能侧重 | 适用场景 |
+|------|----------|----------|----------|
+| [Java CLI](java-cli.md) | `GetAccount` 等交互式命令，或 `get-account` 等标准 CLI 命令 | 最广泛的协议功能，包括 TRC-10 发行、DEX 和治理/提案 | 手动操作和 Java JAR 集成 |
+| [TypeScript / npm CLI](typescript-cli.md) | `account info`、`tx send` 等分组命令 | 核心钱包操作、多签、GasFree、本地工具和稳定的机器接口 | 自动化、CI/CD、结构化 JSON 集成以及 AI 智能体 |
 
 两种实现有各自独立的安装与运行要求。请继续阅读 [Java CLI 概览](java-cli.md) 或
-[TypeScript / npm CLI 概览](typescript-cli.md)。
+[TypeScript / npm CLI 概览](typescript-cli.md)。有关 TypeScript 实现中对安全敏感的工作流，
+请参见[多签](typescript-cli-multisig.md)、[GasFree](typescript-cli-gasfree.md)和
+[签名与安全](typescript-cli-signing.md)。

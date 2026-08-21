@@ -169,8 +169,7 @@ ChangePassword
     java -jar java/build/libs/wallet-cli.jar clear-wallet-keystore --force
     ```
 
-    - `--force` 在语法上是可选的，但在标准 CLI 模式下执行这一破坏性操作时必须提供 —— 不带它命令会
-      以用法错误失败。需要鉴权。
+    - 传入 `--force` 以确认这一破坏性操作。需要鉴权。
 
 === "交互模式"
 
@@ -215,18 +214,9 @@ ViewTransactionHistory
 
 ## 别名（仅标准 CLI）
 
-标准 CLI 支持**别名** —— 为账户和代币起的友好名称 —— 这样你可以写 `--to my-friend` 而不是原始的
-Base58 地址。别名按网络隔离，来自两层：一组**内置**别名（只读）和你的**用户**别名。
-
-别名解析作用于**地址**字段，而非数字 ID：
-
-- **账户别名**（`--type ACCOUNT`）作用于诸如 `--to`、`--from`、`--owner`、`--receiver`、
-  `--address` 等地址字段。
-- **代币别名**（`--type TOKEN`）作用于合约地址字段 —— 合约 `--contract` 选项，以及
-  `get-contract` / `get-contract-info` 的 `--address`。
-
-它们**不**作用于 TRC-10 资产 ID（`--asset`）或 `--token-id`，这些按数字 ID 原样读取。当别名被
-解析时，解析结果会在 JSON 模式下以 `meta.resolved` 上报。
+标准 CLI 支持按网络隔离的账户和代币地址别名，因此可以写 `--to my-friend`，而不必使用 Base58 地址。
+内置别名是只读的；用户别名可以添加和删除。账户别名作用于账户地址选项，代币别名作用于合约地址选项。
+别名不作用于数字形式的 TRC-10 资产 ID 或 `--token-id`。
 
 ```bash
 # 添加账户别名

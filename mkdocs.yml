@@ -290,6 +290,8 @@ nav:
                 - 查询: clients/wallet-cli/query.md
             - TypeScript / npm CLI:
                 - 概览: clients/wallet-cli/typescript-cli.md
+                - 多签: clients/wallet-cli/typescript-cli-multisig.md
+                - GasFree: clients/wallet-cli/typescript-cli-gasfree.md
                 - 签名与安全: clients/wallet-cli/typescript-cli-signing.md
     - 版本发布:
         - 新版本部署手册: releases/upgrade-instruction.md

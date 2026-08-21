@@ -1,60 +1,55 @@
 # TypeScript CLI 签名与安全
 
-TypeScript CLI 支持软件 keystore、Ledger 账户和 watch-only 账户。软件私钥始终在本地加密保存，
-Ledger 私钥绝不会离开设备，watch-only 账户可以查询状态，但不能签名。
+TypeScript CLI 支持软件账户、Ledger 账户和 watch-only 账户。软件密钥始终在本地加密保存，Ledger
+密钥保留在设备上，watch-only 账户不能签名。
 
-## 签名现有交易 {#sign-an-existing-transaction}
+## 签名交易
 
-`tx sign` 可以签名在 wallet-cli 之外构建的 TRON 交易，但不会广播：
+`tx sign` 接受两种输入形式：
 
-```bash
-printf '%s\n' "$WALLET_PASSWORD" |
-  wallet-cli tx sign --transaction "$TX_JSON" --password-stdin --output json
-```
-
-对于软件账户，签名可以离线完成，`--network` 为可选项。该命令是一个纯签名器：它不会判断签名者
-是否拥有该交易、合约调用是否符合预期，也不会判断应转移多少价值。调用方仍需负责策略检查。
-
-### 交易完整性
-
-TRON 交易通过三个相互关联的字段表示其内容：
-
-| 字段 | 用途 |
+| 输入 | 用途 |
 |------|------|
-| `raw_data` | 供用户和应用读取的交易内容。 |
-| `raw_data_hex` | 节点实际执行的字节。 |
-| `txID` | 签名覆盖的哈希。 |
+| `--transaction <json>` | 直接签名 JSON 交易。 |
+| `--hex <hex>` / `--file <path>` | 向交易数据添加签名。 |
 
-签名前，wallet-cli 要求 `txID` 等于 `raw_data_hex` 的 SHA-256 哈希。它还会解码交易的外层封装，
-并要求 `raw_data` 声明的合约类型与 `raw_data_hex` 中编码的类型一致。对于可以重新编码的合约类型，
-它还要求 `raw_data` 的字段级内容重新编码后得到相同字节。任何不一致都会返回 `tx_integrity`，且不会
-生成签名。
+该命令只签名，不会广播。之后使用 `tx broadcast` 广播。
 
-底层库无法重新编码 `MarketSellAssetContract`、`MarketCancelOrderContract` 和
-`ShieldedTransferContract`。wallet-cli 仍会检查这类交易的哈希和合约类型，但无法将其 `raw_data`
-字段值与 `raw_data_hex` 对照验证；调用方必须把显示的这些字段值视为未经验证的数据。
-
-### 多签交易
-
-如果输入已经包含 `signature` 数组，`tx sign` 会追加新签名，而不是替换已有签名。因此，同一笔部分
-签名的交易可以依次传递给多个授权签名者，直到达到权限阈值。
-
-提取已签名的载荷，稍后再广播：
+软件账户通过 stdin 提供密码：
 
 ```bash
 printf '%s\n' "$WALLET_PASSWORD" |
-  wallet-cli tx sign --transaction "$TX_JSON" --password-stdin --output json |
-  jq -c '.data.signed' > signed.json
-
-wallet-cli tx broadcast --network tron:nile --tx-stdin < signed.json
+  wallet-cli tx sign \
+    --transaction "$TX_JSON" \
+    --password-stdin
 ```
 
-文本输出会打印完整签名，而不是缩写的交易标识符。
+对于多签交易数据，已有签名会保留，所选账户再添加一个签名：
+
+```bash
+printf '%s\n' "$WALLET_PASSWORD" |
+  wallet-cli tx sign \
+    --file transaction.hex \
+    --account cosigner \
+    --network tron:nile \
+    --out transaction.signed.hex \
+    --password-stdin
+```
+
+对交易数据签名时，CLI 默认会在线检查所选权限和已有签名，并拒绝过期交易、未授权签名者或重复签名。
+在与网络隔离的设备上使用 `--offline`，之后再通过 `tx approvals` 检查交易数据。
+
+完整的协同签名流程见 [TypeScript CLI 多签](typescript-cli-multisig.md)。
+
+## 签名前检查
+
+wallet-cli 会在签名前验证交易表示。无法安全解码和验证的十六进制或文件形式的交易数据会被拒绝。
+
+签名前务必确认发送方、接收方、金额、token 或合约、权限和过期时间。离线签名时，应通过可信渠道
+传递交易数据，并且不要在签名者之间修改交易内容。
 
 ## 签名类型化数据
 
-`typed-data sign` 用于签名 EIP-712/TIP-712 结构化数据，并返回签名者地址、推断或声明的主类型、
-摘要和签名：
+`typed-data sign` 用于签名 EIP-712/TIP-712 结构化数据：
 
 ```bash
 printf '%s\n' "$WALLET_PASSWORD" |
@@ -64,65 +59,47 @@ printf '%s\n' "$WALLET_PASSWORD" |
     --output json
 ```
 
-载荷采用常见的 `domain`、`types`、`primaryType` 和 `message` 结构。CLI 会：
+载荷使用 `domain`、`types`、`primaryType` 和 `message`。地址字段接受 TRON Base58 地址。
+`domain.chainId` 会按输入值参与签名，不会与 `--network` 比较，因此请仔细检查 domain 和 message。
 
-- 忽略 `types` 中的 `EIP712Domain`；
-- 接受 `value` 作为 `message` 的别名；
-- 在 `address` 字段中接受 TRON Base58 地址；
-- 在省略 `primaryType` 时进行推断，并报告最终解析出的类型；
-- 拒绝不是消息根类型的已声明 `primaryType`。
+## Ledger 账户
 
-`domain.chainId` 会严格按输入值参与签名，不会与 `--network` 比较。签名前请检查 domain 和 message。
+Ledger 账户支持交易和类型化数据签名。使用 Ledger 账户时，不要通过管道传入密码，也不要使用
+`--password-stdin`。
 
-## Ledger 行为
+签名类型化数据时，请在 Ledger TRON 应用中启用
+**Settings > Sign by Hash > Allowed**。设备可能只显示哈希，而不会显示类型化数据的每个字段，因此
+批准操作前应在主机上核对完整载荷。
 
-`tx sign` 和 `typed-data sign` 均支持 Ledger 账户。交易完整性检查同样会在软件签名和 Ledger
-签名之前执行。
+其他操作可能要求在 TRON 应用中启用相应的交易或自定义合约签名设置。如果应用或设备无法签名某项
+操作，wallet-cli 会返回包含处理建议的 Ledger 错误。
 
-类型化数据签名使用 TRON 应用的哈希签名能力。请在设备上启用
-**Settings > Sign by Hash > Allowed**，否则 CLI 会返回 `ledger_setting_required`。如果 TRON
-应用版本不支持该指令，则返回 `ledger_unsupported`。
+## 密码与敏感信息输入
 
-交易数据或自定义合约签名等其他 Ledger 应用设置，也会以可采取操作的
-`ledger_setting_required` 错误报告，而不是返回含义不清的 APDU 错误。设备超时或取消操作后会关闭
-传输连接，使后续尝试可以正常重新连接。
+Master password、助记词和私钥绝不会通过命令行参数或配置值接收。
 
-Ledger 屏幕无法显示类型化数据的全部字段，可能只显示哈希。批准操作前，请在主机上核对载荷。
+软件账户签名必须使用 `--password-stdin`。没有显式交互式密码流程的命令在缺少密码标志时不会提示。
 
-## Secret 输入策略
-
-Secret 绝不会通过命令行参数或环境配置接收。
-
-支持的 stdin 通道如下：
+单次调用只能使用一个 stdin 标志：
 
 | 标志 | 输入 |
 |------|------|
-| `--password-stdin` | 用于解锁软件 keystore 的 master password。 |
-| `--tx-stdin` | `tx broadcast` 消费的已签名交易 JSON。 |
-| `--message-stdin` | `message sign` 消费的消息。 |
+| `--password-stdin` | 软件钱包 master password。 |
+| `--tx-stdin` | `tx broadcast` 使用的交易 JSON。 |
+| `--message-stdin` | `message sign` 使用的消息。 |
 
-单次调用中只能有一个 `*-stdin` 标志消费 stdin。
+`import mnemonic`、`import private-key` 和 `change-password` 要求在真实终端中进行隐藏输入。
 
-以下高敏感度的初始化操作只能交互执行，并要求从真实 TTY 隐藏输入：
+## 保护本地数据
 
-- `import mnemonic`
-- `import private-key`
-- `change-password`
+- 钱包文件、备份和生成的密钥对包含敏感信息。请安全保存，不要共享。
+- `config.yaml` 中的服务凭据在显示时会被隐藏。请保护配置文件。
+- 已签名交易文件不包含私钥，但分享或广播前仍应检查其内容。
+- 仅在受控的离线终端中使用 `--print-secret`。
 
-它们不接受 `--mnemonic-stdin`、`--private-key-stdin` 或 `--password-stdin`。没有 TTY 时，
-命令会返回 `tty_required`。
-
-## 失败行为
-
-- watch-only 账户会在签名或写操作开始前返回 `watch_only_no_signer`。
-- 无效的全局选项值会返回 `invalid_value`，而不是退回默认值。
-- Ledger 设置和版本问题分别使用 `ledger_setting_required` 和 `ledger_unsupported`。
-- 交易的多种表示不一致时返回 `tx_integrity`。
-- 用户或设备拒绝签名时返回 `signing_rejected`。
-
-JSON 模式会在单个 `wallet-cli.result.v1` 信封中返回这些错误码；执行失败使用退出码 1，无效用法
-使用退出码 2。
-
-完整的字段级命令参考，请参见
-[`tx sign`](https://github.com/tronprotocol/wallet-cli/blob/master/ts/docs/commands/tx/sign.md) 和
-[`typed-data sign`](https://github.com/tronprotocol/wallet-cli/blob/master/ts/docs/commands/typed-data/sign.md)。
+所有选项和响应字段，请参见上游
+[`tx sign`](https://github.com/tronprotocol/wallet-cli/blob/master/ts/docs/commands/tx/sign.md)、
+[`tx approvals`](https://github.com/tronprotocol/wallet-cli/blob/master/ts/docs/commands/tx/approvals.md)
+以及
+[`typed-data sign`](https://github.com/tronprotocol/wallet-cli/blob/master/ts/docs/commands/typed-data/sign.md)
+参考。

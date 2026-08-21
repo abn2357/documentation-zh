@@ -14,11 +14,8 @@ TRON 账户质押（冻结）TRX 以获取**带宽**和**能量**，并获得投
 | `1` | ENERGY（能量） |
 | `2` | TRON_POWER（投票权；仅 freeze/unfreeze，且受网络开关限制） |
 
-码 `2`（TRON_POWER）对 freeze/unfreeze 命令受网络开关限制：
-`FreezeBalance`/`UnfreezeBalance`（Stake 1.0）、`FreezeBalanceV2`/`UnfreezeBalanceV2`（Stake 2.0）
-以及对应的标准 CLI 命令，只有在链参数 `getAllowNewResourceModel` 启用时才接受它。如果无法获取该链参数，
-客户端会 fail-open，让节点在广播时进行最终校验。代理命令（两种模式）始终只接受 `0` 或 `1`；
-TRON_POWER 不可代理。
+只有网络启用新资源模型时，freeze 和 unfreeze 命令才可使用码 `2`。代理只接受 `0` 或 `1`；
+TRON_POWER 不能代理。
 
 金额以 **SUN** 为单位（1 TRX = 1,000,000 SUN）。
 
@@ -41,8 +38,7 @@ TRON_POWER 不可代理。
     ```
 
     - `--amount`（必填，SUN）、`--duration`（必填，天）。
-    - `--resource`（可选，`0`/`1`/`2`，默认 `0`）。`2` 是 TRON_POWER，仅在
-      `getAllowNewResourceModel` 启用时允许。如果设置了 `--receiver`，该操作属于代理，`2` 会被拒绝。
+    - `--resource`（可选，`0`/`1`/`2`，默认 `0`）。使用 `--receiver` 时只能选择 `0` 或 `1`。
     - `--receiver`（可选）—— 把获得的资源代理给另一个地址。
     - `--owner`、`--multi`（可选）。
 
@@ -52,8 +48,6 @@ TRON_POWER 不可代理。
     FreezeBalance [OwnerAddress] frozen_balance frozen_duration [ResourceCode] [receiverAddress]
     ```
 
-    `ResourceCode`：`0` BANDWIDTH，`1` ENERGY，`2` TRON_POWER。
-
 ### 解冻余额 —— `unfreeze-balance` / `UnfreezeBalance`
 
 === "标准 CLI"
@@ -62,8 +56,7 @@ TRON_POWER 不可代理。
     java -jar java/build/libs/wallet-cli.jar --network nile unfreeze-balance --resource 1
     ```
 
-    - `--resource`（可选，`0`/`1`/`2`，默认 `0`）。`2` 是 TRON_POWER，仅在
-      `getAllowNewResourceModel` 启用时允许。如果设置了 `--receiver`，该操作针对代理冻结，`2` 会被拒绝。
+    - `--resource`（可选，`0`/`1`/`2`，默认 `0`）。使用 `--receiver` 时只能选择 `0` 或 `1`。
     - `--receiver`（可选）—— 若该资源曾被代理则必填。
     - `--owner`、`--multi`（可选）。
 
@@ -87,8 +80,6 @@ TRON_POWER 不可代理。
     ```
 
     - `--amount`（必填，SUN）、`--resource`（可选，`0`/`1`/`2`，默认 `0`）。
-      `2` 是 TRON_POWER，仅在 `getAllowNewResourceModel` 启用时允许；如果无法获取该链参数，客户端会让节点
-      在广播时校验。
     - `--owner`、`--permission-id`、`--multi`（可选）。
 
 === "交互模式"
@@ -109,8 +100,6 @@ TRON_POWER 不可代理。
     ```
 
     - `--amount`（必填，SUN）、`--resource`（可选，`0`/`1`/`2`，默认 `0`）。
-      `2` 是 TRON_POWER，仅在 `getAllowNewResourceModel` 启用时允许；如果无法获取该链参数，客户端会让节点
-      在广播时校验。
     - `--owner`、`--permission-id`、`--multi`（可选）。
 
 === "交互模式"
@@ -178,7 +167,7 @@ TRON_POWER 不可代理。
     DelegateResource [OwnerAddress] balance ResourceCode ReceiverAddress [lock] [lockPeriod]
     ```
 
-    `ResourceCode`：`0` BANDWIDTH，`1` ENERGY。`lock` 为 `true`/`false`。
+    `lock` 为 `true` 或 `false`。
 
 ### 取消代理资源 —— `undelegate-resource` / `UnDelegateResource`
 
