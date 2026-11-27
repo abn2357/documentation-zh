@@ -68,7 +68,7 @@ message SmartContract {
 - `contract_address`：合约地址
 - `abi`：合约所有函数的接口信息
 - `bytecode`：合约字节码
-- `call_value`：随合约调用传入的 TRX 金额
+- `call_value`：部署时转入新合约的 TRX 金额，单位为 SUN。
 - `consume_user_resource_percent`：开发者设置的调用者的资源扣费百分比
 - `name`：合约名称，不得超过 32 字节。该限制按 UTF-8 编码后的字节数计算，而不是按字符数计算
 - `origin_energy_limit`：开发者设置的在一次合约调用过程中自己消耗的 energy 的上限，必须大于 0。对于之前老的合约，deploy 的时候没有提供设置该值的参数，会存成 0，但是会按照 1000 万 energy 上限计算，开发者可以通过 `updateEnergyLimit` 接口重新设置该值，设置新值时也必须大于 0
@@ -83,8 +83,10 @@ message SmartContract {
 #### constant function 和非 constant function
 
 函数调用从对链上属性是否有更改可分为两种：constant function 和非 constant function。
-Constant function 是指用 `view`/`pure` 修饰的函数。会在调用的节点上直接返回结果，并不以一笔交易的形式广播出去。
-非 constant function 是指需要依托一笔交易的形式被广播的方法调用。函数会改变链上数据的内容，比如转账，改变合约内部变量的值等等。
+Constant function 是指用 `view`/`pure` 修饰的函数。通过 `triggerConstantContract` 调用时，会在调用的节点上直接返回结果，不会广播交易。
+非 constant function 可以修改链上数据，比如转账、修改合约内部变量等。只有以交易形式在链上成功执行，状态变更才会生效。
+
+`triggerConstantContract` 在本地模拟执行，也可模拟非 `view`/`pure` 函数，不提交状态变更，也不广播交易。
 
 **注意**：早期合约可能使用已废弃的 `constant` 函数修饰符。该修饰符仅是编译期标注，不会编进字节码，已部署的老合约照常运行；但用当前 TRON Solidity 编译器重新编译会报语法错——新合约请使用 `view`/`pure`。
 
@@ -112,7 +114,7 @@ Constant function 是指用 `view`/`pure` 修饰的函数。会在调用的节�
 
     - 在 constructor 中调用转账
     - 在合约内函数中调用转账
-    - 通过 `transfer`/`send`/`call`/`callcode`/`delegatecall` 函数调用转账
+    - 通过 `transfer`、`send` 或携带非零 `value` 的 `call` 转账 TRX
 
     **注意**：TRON 的智能合约与 TRON 的系统合约不同。在 SOLIDITY_059 升级（链参数 `ALLOW_TVM_SOLIDITY_059`，由委员会 [提案 #29](https://tronscan.io/#/proposal/29) 激活）之前，从智能合约向不存在的账户转账会失败；激活之后，TVM 会在转账时自动创建目标账户，与系统合约行为一致。
 
@@ -147,12 +149,12 @@ function convertFromTronInt(uint256 tronAddress) public view returns (address) {
 
 #### 地址判断
 
-Solidity 中有地址常量判断，如果写的是 21 字节地址编译器会报错，只用写 20 字节地址即可，如：
+在 Solidity 代码中直接填写地址时，必须使用去掉 TRON `41` 前缀后的 20 字节十六进制形式，并通过编译器的地址校验和检查。例如：
 
 ```solidity
 function compareAddress(address tronAddress) public view returns (uint256) {
     // if (tronAddress == 0x41ca35b7d915458ef540ade6068dfe2f44e8fa733c) { // compile error
-    if (tronAddress == 0xca35b7d915458ef540ade6068dfe2f44e8fa733c) { // right
+    if (tronAddress == 0xCA35b7d915458EF540aDe6068dFe2F44E8fa733c) { // right
         return 1;
     } else {
         return 0;
@@ -164,12 +166,12 @@ function compareAddress(address tronAddress) public view returns (uint256) {
 
 #### 地址赋值
 
-Solidity 中有地址常量的赋值，如果写的是 21 字节地址编译器会报错，只用写 20 字节地址即可，Solidity 中后续操作直接利用这个 20 字节地址，波场虚拟机内部做了补位操作。如：
+将地址赋给变量时，同样需要满足 20 字节格式和校验和要求：
 
 ```solidity
 function assignAddress() public view {
     // address newAddress = 0x41ca35b7d915458ef540ade6068dfe2f44e8fa733c; // compile error
-    address newAddress = 0xca35b7d915458ef540ade6068dfe2f44e8fa733c;
+    address newAddress = 0xCA35b7d915458EF540aDe6068dFe2F44E8fa733c;
     // do something
 }
 ```
@@ -180,8 +182,7 @@ function assignAddress() public view {
 
 #### 货币
 
-类似于 Solidity 对 `ether` 的支持，波场虚拟机的代码支持的货币单位有 `trx` 和 `sun`，其中 1 `trx` = 1000000 `sun`，大小写敏感，只支持小写。目前 tron-studio 支持 `trx` 和 `sun`，在 remix 中，不支持 `trx` 和 `sun`。
-我们推荐使用 tron-studio 代替 remix 进行 TRON 智能合约的编写。
+TRON Solidity 编译器支持货币单位 `trx` 和 `sun`，其中 `1 trx = 1,000,000 sun`。单位名称区分大小写，仅支持小写。推荐使用 [TronIDE](https://developers.tron.network/docs/tron-ide) 编写、编译和部署 TRON 智能合约。
 
 #### 区块相关
 
